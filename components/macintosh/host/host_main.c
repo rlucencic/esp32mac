@@ -227,6 +227,17 @@ static void run_script(uint32_t frame)
                 }
             }
             printf("\n");
+        } else if (strcmp(l->cmd, "icon") == 0) {
+            unsigned a = 0;
+            sscanf(l->arg, "%x", &a);
+            for (int y = 0; y < 32; y++) {
+                uint32_t row = ((uint32_t)mac_peek16(a + y * 4) << 16) | mac_peek16(a + y * 4 + 2);
+                printf("    ");
+                for (int x = 31; x >= 0; x--) {
+                    putchar(row >> x & 1 ? '#' : '.');
+                }
+                printf("\n");
+            }
         } else if (strcmp(l->cmd, "eject") == 0) {
             mac_disk_eject(atoi(l->arg) - 1);
         } else {

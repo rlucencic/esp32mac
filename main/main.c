@@ -435,6 +435,13 @@ static bool console_command(const char *line)
 
 /* ---- The machine ---- */
 
+#if CONFIG_EMU_WEB
+/* web/macfiles.js: StuffIt, Compact Pro, BinHex and MacBinary files dropped
+ * on the web page become HFS disk images in the browser */
+extern const char macfiles_js_start[] asm("_binary_macfiles_js_start");
+extern const char macfiles_js_end[] asm("_binary_macfiles_js_end");
+#endif
+
 static const emu_machine_t machine = {
     .name = "Macintosh",
     .short_name = "Mac",
@@ -458,6 +465,10 @@ static const emu_machine_t machine = {
     .choices = choices,
     .choice_count = 2,
     .disks = &disks,
+#if CONFIG_EMU_WEB
+    .web_script = macfiles_js_start,
+    .web_script_end = macfiles_js_end,
+#endif
     .status = status,
     .console_info = console_info,
     .console_command = console_command,

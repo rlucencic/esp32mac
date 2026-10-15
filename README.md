@@ -13,6 +13,13 @@
   <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-green">
 </p>
 
+<p align="center">
+  <img alt="System 7.5.5 on the Macintosh HD disk image" src="docs/images/desktop.png" width="49%">
+  <img alt="Speedometer 3.23's Performance Test: CPU 1.28, graphics 1.09, disk 31.9, math 1.19 times a Mac Classic" src="docs/images/speedometer.png" width="49%">
+  <br>
+  <sub>System 7.5.5 on a 500 MB disk image, and Speedometer 3.23 (unpacked from its <code>.sit</code> by the web page) rating the emulated Plus against a Mac Classic. Screenshots from the board.</sub>
+</p>
+
 esp32mac turns the Makerfabs MaTouch ESP32-S3 Parallel TFT with Touch 7"
 into a compact black-and-white Macintosh. The 512×342 screen fills the
 panel's height, a Bluetooth keyboard and mouse (or your finger on the screen)
@@ -26,7 +33,9 @@ both are built on the shared runtime [esp32emu](https://github.com/rlucencic/esp
 ## Features
 
 **The machine**
-- 68000 at 7.83 MHz ([Musashi](https://github.com/kstenerud/Musashi) core), full speed on the board
+- 68000 at 7.83 MHz ([Musashi](https://github.com/kstenerud/Musashi) core), full speed on the board.
+  Speedometer 3.23 rates it at 1.3 times a Mac Classic: the emulated CPU
+  never waits for the video and sound circuits the way the real one does
 - Macintosh Plus, SE or Classic, chosen on the setup screen (from the ROMs you have)
 - 1, 2 or 4 MB of RAM
 - VIA with its timers, real-time clock with parameter RAM (set from the
@@ -39,6 +48,11 @@ both are built on the shared runtime [esp32emu](https://github.com/rlucencic/esp
 - Tested with System 7.5.3 on all three models
 - Raw images (`.dsk`, `.img`, `.hfv`), Disk Copy 4.2 images (`.image`), and
   partitioned hard disk and CD images (`.hda`, `.iso`, `.toast`)
+- **Mac archives straight from the old download sites**: StuffIt (`.sit`,
+  `.sea`, 1.5 to 5.x), Compact Pro (`.cpt`), BinHex (`.hqx`) and MacBinary
+  (`.bin`) files dropped on the web page are unpacked in your browser and put
+  on a disk image of their own, ready to insert (disk images inside an
+  archive are used as they are)
 - **New blank disks** from the setup screen or the web page (800 KB to 500 MB);
   the Mac offers to initialise them
 - Disks inserted while the Mac runs appear on the desktop; ejecting one on
@@ -50,9 +64,9 @@ both are built on the shared runtime [esp32emu](https://github.com/rlucencic/esp
   top-right corner for 2 seconds): WiFi, Bluetooth pairing, model, memory,
   disks, reset
 - **Bluetooth keyboard and mouse** (BLE HID), with battery levels
-- **Web page** at `http://macintosh.local`: drop disk images or `.ZIP` files
-  onto it, put them into drives, eject, make blank disks, and watch the Mac,
-  drives, board and Bluetooth devices live
+- **Web page** at `http://macintosh.local`: drop disk images, Mac archives or
+  `.ZIP` files onto it, put them into drives, eject, make blank disks, and
+  watch the Mac, drives, board and Bluetooth devices live
 - **Sound** on the board's speaker (optional, `menuconfig`)
 
 ## Hardware
@@ -64,6 +78,12 @@ both are built on the shared runtime [esp32emu](https://github.com/rlucencic/esp
 | Screen | 1024×600 RGB, GT911 capacitive touch |
 | Storage | microSD card (FAT32) |
 | Input | any BLE keyboard and mouse, or the touch screen |
+
+<p align="center">
+  <img alt="The Mac's screen on the board's 1024×600 panel" src="docs/images/desktop-panel.png" width="80%">
+  <br>
+  <sub>The whole 1024×600 panel: the Mac's 512×342 screen scaled to 898×600, square pixels.</sub>
+</p>
 
 ## Getting started
 
@@ -110,6 +130,7 @@ ROMs, you can also copy them into a `roms` folder on the SD card.
 | Eject a disk | Drag it to the Trash on the Mac (frees the drive), or **Eject** on the web page |
 | Make a blank disk | Web page: **New blank disk** (choose the size), or setup screen → **New empty disk** (800 KB) |
 | Copy disk images from a computer | Drop them onto the web page (ZIP files are unpacked) |
+| Use a program downloaded as `.sit`, `.cpt` or `.hqx` | Drop the file onto the web page: it becomes a disk image named after it (e.g. `Speedometer 3.23.dsk`) |
 | …or from the command line | `curl -T System.dsk http://macintosh.local/disks/` |
 
 Disk images live in the `disks` folder on the SD card. The inserted disks
@@ -202,6 +223,9 @@ debugging options and the lessons learned along the way.
 - [Mini vMac](https://www.gryphel.com/c/minivmac/) and Matt Evans'
   [umac](https://github.com/evansm7/umac), the references for how these Macs
   behave and how a paravirtual disk driver fits in
+- [The Unarchiver](https://theunarchiver.com)'s XADMaster by Dag Ågren (LGPL), the
+  reference for the StuffIt and Compact Pro formats, and Elliot Nunn's
+  [machfs](https://github.com/elliotnunn/machfs) (MIT) for the HFS name order
 - [LVGL](https://lvgl.io) for the setup screen
 - [ESP-IDF](https://github.com/espressif/esp-idf) and NimBLE
 
@@ -210,6 +234,11 @@ debugging options and the lessons learned along the way.
 [MIT](LICENSE). The Musashi core in esp32emu is MIT licensed too. LVGL (MIT)
 and ESP-IDF (Apache 2.0) are fetched at build time and keep their own
 licences.
+
+The one exception is `main/web/macfiles.js`, the archive converter for the
+web page: it follows XADMaster closely, so it is under the
+[GNU LGPL 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) or
+later.
 
 Apple, Macintosh and Mac are trademarks of Apple Inc. This project contains
 no Apple code; you need your own ROM images and system software.

@@ -53,6 +53,7 @@ at a screen position, `R <model 0|1|2> <ram KB>` restart as Plus/SE/Classic,
 | `main/main.c` | The Mac as an `emu_machine_t`: memory, start, key map, touch, drives, status, console |
 | `main/rom_store.c` | ROM from its flash partition, else a matching file in the SD card's `roms/` |
 | `main/settings.c` | NVS `mac`: `model`, `ram_kb`, `pram` (256 bytes) |
+| `main/web/macfiles.js` | Web page script (`/machine.js`): Mac archives -> HFS disk images in the browser (LGPL, see below) |
 | `components/macintosh/` | The Mac, platform independent (`include/mac.h`) |
 | `components/macintosh/host/` | Host build for testing on the Mac (see Testing) |
 | `roms/` | `plus.rom`, `se.rom`, `classic.rom` (copyrighted, not distributed) |
@@ -105,8 +106,40 @@ at a screen position, `R <model 0|1|2> <ram KB>` restart as Plus/SE/Classic,
   1.4 MB), `.Disk` for bigger ones (its DCE is made by the native Open in
   the last unit-table entry, marked open; diskInPlace 8 = fixed disk).
   CD images (`.iso`, `.toast`, `.cdr`) are opened read-only (locked).
+  Fixed disks (over 1.4 MB) get a hard disk icon of the driver's own (an
+  original drawing, ICN# data + mask copied into the ROM after the driver),
+  returned by Control 21/22 (media/physical icon) — without it the Finder
+  shows a floppy; Control 23 (drive info) says fixed or 3.5", internal or
+  external. The 7.5 System has no ICN# -3995 to borrow.
   Images: raw, Disk Copy 4.2 (84-byte header), Apple partition map (first
   Apple_HFS partition).
+
+## Mac archives on the web page (`main/web/macfiles.js`)
+
+Embedded by `main` and handed to the runtime as `web_script` (served as
+`/machine.js`); it calls `registerConverter()`, and the page then accepts
+`.sit .sea .cpt .hqx .bin` (also inside ZIP files), converts them in the
+browser and uploads the result as an ordinary image.
+
+- Containers: StuffIt 1.5-4.5 (`SIT!`, 112-byte entries) and 5 (`StuffIt
+  (c)1997-`, also found inside a self-extracting app's data fork), Compact
+  Pro (directory CRC-checked), BinHex 4.0, MacBinary I/II/III.
+- StuffIt methods 0 (stored), 1 (RLE 0x90), 2 (LZW, 14 bits), 3 (Huffman),
+  5 (LZAH), 13 (LZSS+Huffman), 15 (Arsenic: arithmetic coding, BWT, MTF).
+  Not: 8 (MW), 14, encrypted archives, StuffIt X (`.sitx`). Compact Pro:
+  RLE and LZH. Every fork is checked against its CRC.
+- The files then go onto a new HFS volume: the smallest of 800K, 1.4 MB, or
+  a hard disk (MB-rounded, 25% spare), named after the archive. B-trees with
+  512-byte nodes, catalog in Mac name order (machfs's table), forks in one
+  extent each, Finder flags kept except "inited" (the Finder places the
+  icons). Disk images found inside an archive (by extension, Disk Copy 4.2
+  header, or `dImg`/`rohd` of a floppy size) are uploaded as they are.
+  Archives it can't open (DiskDoubler, `.zip` inside) stay files, with room
+  to expand them on the Mac.
+- Follows The Unarchiver's XADMaster (LGPL), including its method 13 tables,
+  so this one file is LGPL 2.1+; the rest of the project stays MIT.
+- Test it under node: `module.exports` has `convert`, `open`, `buildHfs`
+  (see Testing).
 
 ## Persistent state
 
@@ -162,6 +195,12 @@ at a screen position, `R <model 0|1|2> <ram KB>` restart as Plus/SE/Classic,
 - The first click after the Finder appears can be ignored while it's still
   starting up; that's the Mac, not the input path (MBState changes).
 - The host build runs ~200x real time: boot tests take seconds.
+- **Mac archive pitfalls** (`macfiles.js`): BinHex's CRC is the
+  "augmented" CCITT (don't append two zero bytes to a table-driven CRC);
+  Compact Pro's LZH offset 0 means 8192 (the 8 KB window wraps); in LZAH's
+  adaptive tree, decide which child each swapped node is before changing
+  either parent (siblings); HFS index nodes need sibling links too (Disk
+  First Aid: "Invalid sibling link").
 
 ## Testing
 
@@ -173,18 +212,27 @@ at a screen position, `R <model 0|1|2> <ram KB>` restart as Plus/SE/Classic,
   `MAC_STATUS=<n>`, `MAC_TRACE=<pc>[:<n>]`, `MAC_DIS=<addr>[:<n>]`,
   `MAC_FAULT_DIS` (code, registers and drive queue at a bus/address error;
   the errors themselves are always logged in the host build), script
-  commands `free`, `units`,
+  commands `free`, `units`, `icon <hex addr>` (prints a 32x32 bitmap),
   `MAC_WAV=<file>`, `MAC_QUIET`. Prints blocks read/written per drive.
 - Verified on the host: Plus boots 7.5.3 from the CD image (partition map),
   keyboard and mouse; SE and Classic boot the Disk Tools floppy to the
   Finder; ADB keyboard (Cmd-N, typing) and mouse (menus); absolute pointer;
   blank 20 MB disk initialised and mounted; three drives at power-on;
   eject from the Mac; startup sound.
+- **Mac archives**: `node` with `require("main/web/macfiles.js")`; 73 of 74
+  Info-Mac files (BinHex, MacBinary, StuffIt 1.5-5, Compact Pro, methods
+  0/2/3/5/13/15) converted with all CRCs right (the 74th is a truncated
+  download); every image read back with machfs (`pip install machfs`); Disk
+  First Aid (7.5.3 Disk Tools) finds a 52 MB, 300-file, 3-level-catalog
+  volume and the Speedometer floppy OK; Speedometer 3.23 runs from its
+  converted `.sit`. Method 1 (RLE) only by reading. Old archives:
+  `ftp.funet.fi/pub/mac/` (`info-mac/`, `cdev/`, `games/`...).
 - On the board: Plus (4 MB) boots 7.5.3 from the CD image and SE from Disk
   Tools at 100% speed (60 fps; dips to ~65-90% while blocks load from the
   SD card, in the emulation task); touch clicks; web upload of the 255 MB
   CD image (~400 KB/s) while the page stays responsive; insert by name
-  through the API.
+  through the API. Speedometer's `.sit` dropped on the board's page,
+  inserted and run (Benchmark Mix: 1.3 x a Mac Classic, Plus at 4 MB).
 
 ## Open items
 

@@ -158,6 +158,30 @@ static const uint16_t driver[] = {
     0x4E75,                 /* rts */
 };
 
+/* The hard disk icon the driver gives the Finder (Control 21/22), as Apple's
+ * SCSI hard disk driver did: a drive seen from above at an angle, with its
+ * light. Icon, then mask (ICN# layout), then a "where" string for Get Info.
+ */
+static const uint32_t hd_icon[64] = {
+    0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x0FFFFFFF, 0x10000003, 0x20000005, 0x40000009,
+    0xFFFFFFF1, 0x80000011, 0x80000011, 0x80000011,
+    0x80000011, 0x80000011, 0x9F000012, 0x9F000014,
+    0x80000018, 0xFFFFFFF0, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x0FFFFFFF, 0x1FFFFFFF, 0x3FFFFFFF, 0x7FFFFFFF,
+    0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+    0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFE, 0xFFFFFFFC,
+    0xFFFFFFF8, 0xFFFFFFF0, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000,
+};
+static const char hd_where[] = "\x0A" "Disk image";
+
 typedef struct {
     FILE *file;
     char path[192];
@@ -185,6 +209,7 @@ static bool fixed_disk(const drive_t *d)
 
 static uint32_t s_block;            /* the Open block in Mac memory, 0 before Open */
 static int16_t s_disk_refnum;       /* the .Disk driver's, 0 if it couldn't be installed */
+static uint32_t s_hd_icon;          /* the icon's Mac address (in the ROM, after the driver) */
 static int s_next_drive;
 static uint32_t s_driver;           /* driver's Mac address */
 static int s_light = -1;
@@ -193,12 +218,22 @@ static uint8_t s_io[4096];
 bool sony_install(uint8_t *rom, uint32_t rom_size, uint32_t offset)
 {
     uint32_t bytes = sizeof(driver);
-    if (offset + bytes > rom_size) {
+    if (offset + bytes + sizeof(hd_icon) + sizeof(hd_where) > rom_size) {
         return false;
     }
     for (size_t i = 0; i < sizeof(driver) / 2; i++) {
         *(uint16_t *)(rom + offset + i * 2) = driver[i];
     }
+    /* The icon after it, as host-order words like the rest of the ROM copy */
+    uint32_t icon = offset + bytes;
+    for (size_t i = 0; i < 64; i++) {
+        *(uint16_t *)(rom + icon + i * 4) = hd_icon[i] >> 16;
+        *(uint16_t *)(rom + icon + i * 4 + 2) = hd_icon[i] & 0xFFFF;
+    }
+    for (size_t i = 0; i < sizeof(hd_where); i++) {
+        rom[(icon + sizeof(hd_icon) + i) ^ 1] = (uint8_t)hd_where[i];
+    }
+    s_hd_icon = 0x400000 + icon;
     mac.driver_start = offset;
     mac.driver_end = offset + bytes;
     s_driver = 0x400000 + offset;
@@ -484,6 +519,15 @@ static void close_drive(int i)
     update_record(i);
 }
 
+/* Control 23: bits 0-3 drive type (1 unknown, 4 1.4 MB SuperDrive),
+ * bit 8 external
+ */
+static uint32_t drive_info(int i, const drive_t *d)
+{
+    uint32_t external = i == 0 ? 0 : 0x0100;
+    return external | (d->file != NULL && fixed_disk(d) ? 0x0001 : 0x0004);
+}
+
 static int fn_control(void)
 {
     uint32_t pb = m68k_get_reg(NULL, M68K_REG_A0) & 0xFFFFFF;
@@ -517,8 +561,15 @@ static int fn_control(void)
             }
         }
         return set_result(noErr);
-    case 23:    /* drive info: internal or external drive */
-        mac_poke32(pb + CS_PARAM, i == 0 ? 0x0004 : 0x0104);
+    case 21:    /* drive icon */
+    case 22:    /* media icon: what the Finder shows on the desktop */
+        if (!fixed_disk(d)) {
+            return set_result(controlErr);  /* the system's floppy icon */
+        }
+        mac_poke32(pb + CS_PARAM, s_hd_icon);
+        return set_result(noErr);
+    case 23:    /* drive info */
+        mac_poke32(pb + CS_PARAM, drive_info(i, d));
         return set_result(noErr);
     default:
         return failed("control", pb, code, controlErr);
