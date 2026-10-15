@@ -15,9 +15,11 @@
 
 <p align="center">
   <img alt="System 7.5.5 on the Macintosh HD disk image" src="docs/images/desktop.png" width="49%">
-  <img alt="Speedometer 3.23's Performance Test: CPU 1.28, graphics 1.09, disk 31.9, math 1.19 times a Mac Classic" src="docs/images/speedometer.png" width="49%">
+  <img alt="Speedometer 3.23's Performance Test: CPU 1.28, graphics 1.09, disk 31.9, math 1.19 times a Mac Classic" src="docs/images/speedometer-test.png" width="49%">
   <br>
-  <sub>System 7.5.5 on a 500 MB disk image, and Speedometer 3.23 (unpacked from its <code>.sit</code> by the web page) rating the emulated Plus against a Mac Classic. Screenshots from the board.</sub>
+  <img alt="Speedometer 3.23's Benchmark Mix: average 1.298 times a Mac Classic" src="docs/images/speedometer-mix.png" width="49%">
+  <br>
+  <sub>System 7.5.5 on a 500 MB disk image, and Speedometer 3.23 (unpacked from its <code>.sit</code> by the web page) rating the emulated Plus against a Mac Classic: Performance Test and Benchmark Mix. Screenshots from the board.</sub>
 </p>
 
 esp32mac turns the Makerfabs MaTouch ESP32-S3 Parallel TFT with Touch 7"
