@@ -244,9 +244,25 @@ browser and uploads the result as an ordinary image.
 - Disk reads run in the emulation task: big reads cost frames.
 - System 6 not tested.
 
+## README and GitHub
+
+Public at `github.com/rlucencic/esp32mac` (pushed to `main`), with topics
+and an About text like esp32ste's. README images in `docs/images/` (how
+they're made: `../esp32emu/CLAUDE.md`, README screenshots):
+
+| Image | What |
+|---|---|
+| `desktop.png` | Mac screen (`screenshot`): System 7.5.5 on the 500 MB "Macintosh HD" image |
+| `speedometer-test.png`, `-mix.png`, `-compare.png` | Speedometer 3.23 on the board (from its converted `.sit`): Performance Test, Benchmark Mix (1.298 x a Classic), comparison with an LC III |
+| `desktop-panel.png` | The whole panel (`lcd`) |
+| `setup.png` | Setup screen before the start, WiFi/time lines cut out (1024x514) |
+| `disks.png` | Setup screen's Disks page |
+| `web.png` | Web page with example data, after dropping the Speedometer `.sit` |
+
 ## Working with the user
 
 - Expects changes built, flashed and checked on the board, then a short
   report of what was verified and what wasn't.
 - Keep their private data (WiFi name, IP, SD card contents) out of anything
-  meant for publishing.
+  meant for publishing. Screenshots: a new file each time,
+  never over an existing one; the user often adds them to the README.
