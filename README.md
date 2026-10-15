@@ -18,8 +18,9 @@
   <img alt="Speedometer 3.23's Performance Test: CPU 1.28, graphics 1.09, disk 31.9, math 1.19 times a Mac Classic" src="docs/images/speedometer-test.png" width="49%">
   <br>
   <img alt="Speedometer 3.23's Benchmark Mix: average 1.298 times a Mac Classic" src="docs/images/speedometer-mix.png" width="49%">
+  <img alt="Speedometer 3.23's System Comparison: this machine against a Macintosh LC III" src="docs/images/speedometer-compare.png" width="49%">
   <br>
-  <sub>System 7.5.5 on a 500 MB disk image, and Speedometer 3.23 (unpacked from its <code>.sit</code> by the web page) rating the emulated Plus against a Mac Classic: Performance Test and Benchmark Mix. Screenshots from the board.</sub>
+  <sub>System 7.5.5 on a 500 MB disk image, and Speedometer 3.23 (unpacked from its <code>.sit</code> by the web page) rating the emulated Plus against a Mac Classic: Performance Test, Benchmark Mix, and the comparison with a Macintosh LC III (the disk image on the SD card beats it). Screenshots from the board.</sub>
 </p>
 
 esp32mac turns the Makerfabs MaTouch ESP32-S3 Parallel TFT with Touch 7"
