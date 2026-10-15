@@ -72,6 +72,11 @@ both are built on the shared runtime [esp32emu](https://github.com/rlucencic/esp
   watch the Mac, drives, board and Bluetooth devices live
 - **Sound** on the board's speaker (optional, `menuconfig`)
 
+<p align="center">
+  <img src="docs/images/web.png" width="80%" alt="The web page: Mac, drives, board and Bluetooth status, the drop area for disk images and Mac archives, and the disk images on the SD card">
+  <br><sub>The web page, right after a StuffIt archive was dropped on it (example data)</sub>
+</p>
+
 ## Hardware
 
 | | |
@@ -122,6 +127,10 @@ ROMs, you can also copy them into a `roms` folder on the SD card.
    screen is a mouse too).
 4. Choose the **model** and **memory**, then tap **Start Mac**.
 
+<p align="center">
+  <img src="docs/images/setup.png" width="60%" alt="Setup screen: model and memory choice, WiFi, Bluetooth, Disks and Start Mac buttons">
+</p>
+
 ## Using it
 
 | To | Do |
@@ -133,12 +142,16 @@ ROMs, you can also copy them into a `roms` folder on the SD card.
 | Eject a disk | Drag it to the Trash on the Mac (frees the drive), or **Eject** on the web page |
 | Make a blank disk | Web page: **New blank disk** (choose the size), or setup screen → **New empty disk** (800 KB) |
 | Copy disk images from a computer | Drop them onto the web page (ZIP files are unpacked) |
-| Use a program downloaded as `.sit`, `.cpt` or `.hqx` | Drop the file onto the web page: it becomes a disk image named after it (e.g. `Speedometer 3.23.dsk`) |
+| Use a program downloaded as `.sit`, `.cpt` or `.hqx` | Drop the file onto the web page: it becomes a disk image named after it (e.g. `Speedometer_3.23.dsk`) |
 | …or from the command line | `curl -T System.dsk http://macintosh.local/disks/` |
 
 Disk images live in the `disks` folder on the SD card. The inserted disks
 are remembered across restarts, and so is the Mac's parameter RAM (control
 panel settings).
+
+<p align="center">
+  <img src="docs/images/disks.png" width="60%" alt="Disks page: drives 1 to 3 with Insert disk, New empty disk and Eject">
+</p>
 
 Keyboard: Command is the Windows/⌘ key, Option is Alt, Backspace is Delete,
 Insert is Help. The Plus keyboard has no Control, Escape or function keys.
