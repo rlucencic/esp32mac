@@ -30,8 +30,10 @@ work the Mac, and disk images on the microSD card go into three drives:
 floppies and hard disks alike. A setup screen on the touch panel, and a web
 page on your network, handle everything else.
 
-It's the sibling of [esp32ste](https://github.com/rlucencic/esp32ste), an Atari STE on the same board;
-both are built on the shared runtime [esp32emu](https://github.com/rlucencic/esp32emu).
+It's the sibling of [esp32ste](https://github.com/rlucencic/esp32ste) (Atari
+STE) and [esp32cpc](https://github.com/rlucencic/esp32cpc) (Amstrad CPC), on
+the same board; all three are built on the shared runtime
+[esp32emu](https://github.com/rlucencic/esp32emu).
 
 ## Features
 
