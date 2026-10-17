@@ -33,9 +33,10 @@ page on your network, handle everything else.
 
 It's the sibling of [esp32ste](https://github.com/rlucencic/esp32ste) (Atari
 STE), [esp32cpc](https://github.com/rlucencic/esp32cpc) (Amstrad CPC),
-[esp32zx](https://github.com/rlucencic/esp32zx) (ZX Spectrum) and
-[esp32cbm](https://github.com/rlucencic/esp32cbm) (Commodore 64 and 128), on
-the same boards; all five are built on the shared runtime
+[esp32zx](https://github.com/rlucencic/esp32zx) (ZX Spectrum),
+[esp32cbm](https://github.com/rlucencic/esp32cbm) (Commodore 64 and 128) and
+[esp32xl](https://github.com/rlucencic/esp32xl) (Atari 800XL and 130XE), on
+the same boards; all six are built on the shared runtime
 [esp32emu](https://github.com/rlucencic/esp32emu).
 
 ## Features
@@ -134,10 +135,10 @@ ROMs, you can also copy them into a `roms` folder on the SD card.
    then choose **Insert into… → Drive 1**.
 3. Tap **Bluetooth** to pair a keyboard and mouse (optional: the touch
    screen is a mouse too).
-4. Choose the **model** and **memory**, then tap **Start Mac**.
+4. Choose the **model** and **memory**, then tap **Start**.
 
 <p align="center">
-  <img src="docs/images/setup.png" width="60%" alt="Setup screen: model and memory choice, WiFi, Bluetooth, Disks and Start Mac buttons">
+  <img src="docs/images/setup.png" width="60%" alt="Setup screen: model and memory choice, WiFi, Bluetooth, Disks and Start buttons">
 </p>
 
 ## Using it
@@ -145,7 +146,7 @@ ROMs, you can also copy them into a `roms` folder on the SD card.
 | To | Do |
 |---|---|
 | Get back to the setup screen | Hold the top-right corner of the screen for 2 s |
-| Change the model or RAM | On the setup screen; **Restart Mac** applies it |
+| Change the model or RAM | On the setup screen; **Restart** applies it |
 | Click | Tap the screen, or use the Bluetooth mouse |
 | Insert a disk | Web page: **Insert into…**, or setup screen → **Disks** → **Insert disk** |
 | Eject a disk | Drag it to the Trash on the Mac (frees the drive), or **Eject** on the web page |
