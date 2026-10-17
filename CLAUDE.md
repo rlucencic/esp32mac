@@ -202,7 +202,9 @@ browser and uploads the result as an ordinary image.
   build: the ROM was read with `esp_partition_read()` (caches off during the
   read; now memory-mapped), LVGL had resolved to 9.6, and the presenter
   rewrote the whole picture on every change (now only changed rows; see
-  `../esp32emu/CLAUDE.md`). Not yet confirmed gone by the user.
+  `../esp32emu/CLAUDE.md`). Those were only what set it off: the shift
+  stayed because ESP-IDF's RGB driver never got back in step, came back on
+  the ST (2026-10-17) and is fixed in `../esp32emu/components/esp_lcd`.
 - **Free RAM** (web page): the Process Manager's heap zone, found right
   after the system heap (`mac_ram_free()`), else the application heap.
 - **The 7.5.3 Installer ejected the CD image and asked for "System 7.5.3
