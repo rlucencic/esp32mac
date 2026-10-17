@@ -286,8 +286,8 @@ static void ram_set(int i)
 }
 
 static const emu_choice_t choices[] = {
-    { "Model", model_names, model_get, model_set },
-    { "Memory", ram_names, ram_get, ram_set },
+    { "Model", model_names, model_get, model_set, false },
+    { "Memory", ram_names, ram_get, ram_set, false },
 };
 
 /* ---- Disks ---- */
