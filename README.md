@@ -1,12 +1,13 @@
 <h1 align="center">esp32mac</h1>
 
 <p align="center">
-  <b>A Macintosh Plus, SE or Classic on a 7-inch ESP32-S3 touch-screen board.</b><br>
+  <b>A Macintosh Plus, SE or Classic on a 7-inch ESP32-S3 touch-screen board or an M5Stack Tab5.</b><br>
   68000, up to 4 MB, classic Mac OS, disk images of any size, Bluetooth keyboard and mouse.
 </p>
 
 <p align="center">
   <img alt="ESP32-S3" src="https://img.shields.io/badge/ESP32--S3-N16R8-e7352c">
+  <img alt="ESP32-P4" src="https://img.shields.io/badge/ESP32--P4-M5Stack%20Tab5-e7352c">
   <img alt="ESP-IDF" src="https://img.shields.io/badge/ESP--IDF-v5.5-blue">
   <img alt="LVGL" src="https://img.shields.io/badge/LVGL-9.4-5e48e8">
   <img alt="68000" src="https://img.shields.io/badge/CPU-Musashi%2068000-555">
@@ -23,8 +24,8 @@
   <sub>System 7.5.5 on a 500 MB disk image, and Speedometer 3.23 (unpacked from its <code>.sit</code> by the web page) rating the emulated Plus against a Mac Classic: Performance Test, Benchmark Mix, and the comparison with a Macintosh LC III (the disk image on the SD card beats it). Screenshots from the board.</sub>
 </p>
 
-esp32mac turns the Makerfabs MaTouch ESP32-S3 Parallel TFT with Touch 7"
-into a compact black-and-white Macintosh. The 512×342 screen fills the
+esp32mac turns the Makerfabs MaTouch ESP32-S3 Parallel TFT with Touch 7", or an
+M5Stack Tab5, into a compact black-and-white Macintosh. The 512×342 screen fills the
 panel's height, a Bluetooth keyboard and mouse (or your finger on the screen)
 work the Mac, and disk images on the microSD card go into three drives:
 floppies and hard disks alike. A setup screen on the touch panel, and a web
@@ -34,7 +35,7 @@ It's the sibling of [esp32ste](https://github.com/rlucencic/esp32ste) (Atari
 STE), [esp32cpc](https://github.com/rlucencic/esp32cpc) (Amstrad CPC),
 [esp32zx](https://github.com/rlucencic/esp32zx) (ZX Spectrum) and
 [esp32cbm](https://github.com/rlucencic/esp32cbm) (Commodore 64 and 128), on
-the same board; all five are built on the shared runtime
+the same boards; all five are built on the shared runtime
 [esp32emu](https://github.com/rlucencic/esp32emu).
 
 ## Features
@@ -83,13 +84,13 @@ the same board; all five are built on the shared runtime
 
 ## Hardware
 
-| | |
-|---|---|
-| Board | Makerfabs MaTouch ESP32-S3 Parallel TFT with Touch 7" |
-| Module | ESP32-S3-WROOM-1-N16R8: 16 MB flash, 8 MB octal PSRAM |
-| Screen | 1024×600 RGB, GT911 capacitive touch |
-| Storage | microSD card (FAT32) |
-| Input | any BLE keyboard and mouse, or the touch screen |
+| | Makerfabs MaTouch ESP32-S3 7" | M5Stack Tab5 |
+|---|---|---|
+| Chip | ESP32-S3-WROOM-1-N16R8: 16 MB flash, 8 MB octal PSRAM | ESP32-P4 (RISC-V, 360 MHz): 16 MB flash, 32 MB PSRAM; an ESP32-C6 for WiFi and Bluetooth |
+| Screen | 7" 1024×600 RGB, GT911 capacitive touch | 5" 1280×720 MIPI-DSI, capacitive touch, held landscape |
+| Storage | microSD card (FAT32 or exFAT) | microSD card (FAT32 or exFAT) |
+| Input | any BLE keyboard and mouse, or the touch screen | any BLE keyboard and mouse, or the touch screen, or the Tab5 Keyboard |
+| Sound | a speaker on the MAX98357A output (optional, `menuconfig`) | the built-in speaker (ES8388) |
 
 <p align="center">
   <img alt="The Mac's screen on the board's 1024×600 panel" src="docs/images/desktop-panel.png" width="80%">
@@ -115,6 +116,10 @@ git clone https://github.com/rlucencic/esp32emu.git     # the shared runtime, ne
 git clone https://github.com/rlucencic/esp32mac.git && cd esp32mac
 idf.py build
 idf.py -p /dev/cu.usbmodem… flash      # app and the ROM images
+
+# or for the M5Stack Tab5 (its own build folder and settings):
+idf.py -B build-tab5 -DIDF_TARGET=esp32p4 -DSDKCONFIG=build-tab5/sdkconfig build
+idf.py -B build-tab5 -DIDF_TARGET=esp32p4 -DSDKCONFIG=build-tab5/sdkconfig -p /dev/cu.usbmodem… flash
 ```
 
 Later updates only need `idf.py -p … app-flash`. Instead of flashing the
@@ -188,7 +193,7 @@ flowchart LR
   PSRAM[(PSRAM<br>Mac RAM · ROM · framebuffer)]
   SD[(microSD<br>disks/)]
   EMU <--> PSRAM
-  PRES --> LCD[1024×600 panel]
+  PRES --> LCD[1024×600 or 1280×720 panel]
   PSRAM --> PRES
   BLE -- keys, mouse --> EMU
   EMU <--> SD
@@ -226,6 +231,10 @@ debugging options and the lessons learned along the way.
 
 ## Limitations
 
+- The M5Stack Tab5 port is new: the machine starts there and runs at full
+  speed at its start-up screen, with core 1 far less busy than on the S3,
+  but sound, touch, Bluetooth and the Tab5 Keyboard have not been tried on
+  it by hand yet.
 - No serial ports, printer, AppleTalk or SCSI devices (disk images take
   their place).
 - Disk images are presented through the floppy driver: copy-protected
