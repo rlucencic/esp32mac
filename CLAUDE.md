@@ -1,7 +1,9 @@
-# esp32mac: Macintosh Plus / SE / Classic on the Makerfabs MaTouch ESP32-S3 7"
+# esp32mac: Macintosh Plus / SE / Classic on the Makerfabs MaTouch ESP32-S3 7" and the M5Stack Tab5
 
 A compact black-and-white Mac (68000, 512x342, up to 4 MB) on an ESP32-S3
-board with a 1024x600 touch LCD. Bluetooth keyboard and mouse, the touch
+board with a 1024x600 touch LCD, or the M5Stack Tab5 (ESP32-P4, 1280x720,
+see "M5Stack Tab5" below). Its colour sibling, the Macintosh LC, is
+`../esp32mac2` (Tab5 only). Bluetooth keyboard and mouse, the touch
 screen as a mouse, disk images of any size in three drives, an LVGL setup
 screen, and a web page for disk images and live status. ESP-IDF v5.5.4, C.
 
