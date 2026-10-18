@@ -234,6 +234,13 @@ browser and uploads the result as an ordinary image.
 
 ## Testing
 
+- **Debugger** (esp32emu's `components/emudbg`, the VS Code extension
+  `../esp32emu-vscode`): the board serves it on port 6502;
+  `MAC_DEBUG=<port> build/mac_host ...` serves it from the host build, which
+  then runs in real time until killed. The CPUs (68000), `where()`,
+  the screen and typing are described in `components/macintosh/mac.c` (`emudbg_set_machine()`
+  at every init).
+
 - **Host build**: `make -C components/macintosh/host`, then
   `build/mac_host <rom> [frames] [out.ppm] [ram_kb]`. Environment:
   `MAC_DISK1..3=<image>`, `MAC_PRAM=<file>`, `MAC_SCRIPT=<file>` (lines

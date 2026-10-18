@@ -8,8 +8,10 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "m68k.h"
 #include "mac_internal.h"
+#include "emudbg.h"
 
 mac_machine_t mac;
 
@@ -325,6 +327,45 @@ void mac_reset(void)
     m68k_pulse_reset();
 }
 
+/* ---- The debugger (emudbg.h) ---- */
+
+static uint8_t dbg_peek(void *ctx, uint32_t a)
+{
+    (void)ctx;
+    return mac_peek8(a);
+}
+
+static void dbg_poke(void *ctx, uint32_t a, uint8_t v)
+{
+    (void)ctx;
+    mac_poke8(a, v);
+}
+
+static emudbg_cpu_t s_dbg_cpus[] = {
+    { .name = "68000", .arch = &emudbg_arch_68000, .peek = dbg_peek, .poke = dbg_poke },
+};
+
+static void dbg_where(char *buf, size_t len)
+{
+    snprintf(buf, len, "frame %lu, cycle %lu", (unsigned long)mac.frames, (unsigned long)(mac.now - mac.frame_start));
+}
+
+static void dbg_screen(int *width, int *height)
+{
+    *width = MAC_SCREEN_WIDTH;
+    *height = MAC_SCREEN_HEIGHT;
+}
+
+static emudbg_machine_t s_dbg = {
+    .name = "Macintosh",
+    .cpus = s_dbg_cpus,
+    .cpu_count = 1,
+    .where = dbg_where,
+    .reset = mac_reset,
+    .screen = dbg_screen,
+    .render_line = mac_render_line_rgb565,
+};
+
 bool mac_init(const mac_config_t *config)
 {
     memset(&mac, 0, sizeof(mac));
@@ -367,6 +408,8 @@ bool mac_init(const mac_config_t *config)
     m68k_set_int_ack_callback(int_ack);
     m68k_set_reset_instr_callback(reset_instruction);
     mac_reset();
+    s_dbg.name = name;
+    emudbg_set_machine(&s_dbg);
     return true;
 }
 

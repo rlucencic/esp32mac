@@ -24,6 +24,8 @@
  *                            registers, the drive queue (errors are always logged)
  *   MAC_WAV=<file>           record the sound (22255 Hz mono WAV)
  *   MAC_QUIET                no frame summary
+ *   MAC_DEBUG=<port>         serve the debugger (esp32emu's docs/debugger.md) on
+ *                            127.0.0.1:<port> and run in real time until killed
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +33,7 @@
 #include <time.h>
 #include "m68k.h"
 #include "mac.h"
+#include "emudbg.h"
 
 static uint8_t s_pram[MAC_PRAM_SIZE];
 static const char *s_pram_file;
@@ -337,6 +340,7 @@ int main(int argc, char **argv)
         fseek(wav, 44, SEEK_SET);
     }
 
+    emudbg_host_run("MAC_DEBUG", mac_run_frame, 60);
     clock_t start = clock();
     for (int f = 0; f < frames; f++) {
         run_script(f);
