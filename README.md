@@ -76,8 +76,9 @@ boards; all eight are built on the shared runtime
   disks, reset
 - **Bluetooth keyboard and mouse** (BLE HID), with battery levels
 - **Web page** at `http://macintosh.local`: drop disk images, Mac archives or
-  `.ZIP` files onto it, put them into drives, eject, make blank disks, and
-  watch the Mac, drives, board and Bluetooth devices live
+  `.ZIP` files onto it (with a progress bar), put them into drives, eject,
+  make blank disks, and watch the Mac, drives, board and Bluetooth devices
+  live
 - **Sound** on the board's speaker (optional, `menuconfig`)
 
 <p align="center">
