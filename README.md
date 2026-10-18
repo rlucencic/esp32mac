@@ -34,9 +34,11 @@ page on your network, handle everything else.
 It's the sibling of [esp32ste](https://github.com/rlucencic/esp32ste) (Atari
 STE), [esp32cpc](https://github.com/rlucencic/esp32cpc) (Amstrad CPC),
 [esp32zx](https://github.com/rlucencic/esp32zx) (ZX Spectrum),
-[esp32cbm](https://github.com/rlucencic/esp32cbm) (Commodore 64 and 128) and
-[esp32xl](https://github.com/rlucencic/esp32xl) (Atari 800XL and 130XE), on
-the same boards; all six are built on the shared runtime
+[esp32cbm](https://github.com/rlucencic/esp32cbm) (Commodore 64 and 128),
+[esp32xl](https://github.com/rlucencic/esp32xl) (Atari 800XL and 130XE),
+[esp32msx](https://github.com/rlucencic/esp32msx) (MSX1 and MSX2) and
+[esp32gs](https://github.com/rlucencic/esp32gs) (Apple IIGS), on the same
+boards; all eight are built on the shared runtime
 [esp32emu](https://github.com/rlucencic/esp32emu).
 
 ## Features
