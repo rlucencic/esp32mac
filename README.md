@@ -15,6 +15,11 @@
 </p>
 
 <p align="center">
+  <b>Work in progress:</b> not everything has been tested, and games and demos may or may not
+  work satisfactorily.
+</p>
+
+<p align="center">
   <img alt="System 7.5.5 on the Macintosh HD disk image" src="docs/images/desktop.png" width="49%">
   <img alt="Speedometer 3.23's Performance Test: CPU 1.28, graphics 1.09, disk 31.9, math 1.19 times a Mac Classic" src="docs/images/speedometer-test.png" width="49%">
   <br>
