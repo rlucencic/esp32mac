@@ -128,6 +128,12 @@ bool mac_disk_write_protected(int drive);
 /* Size in bytes of the disk in the drive, 0 when empty */
 uint64_t mac_disk_size(int drive);
 
+/* The free space on the disk in the drive and its volume's size, as its
+ * MFS, HFS or HFS+ volume counts them (worked out at insert and a second
+ * after the last write); false if not known. Safe to call from another task.
+ */
+bool mac_disk_space(int drive, uint64_t *free_bytes, uint64_t *size);
+
 /* Make a blank disk image of `bytes` (a multiple of 512): the Mac offers to
  * initialise it when it's inserted. Only the first and last 64 KB (boot
  * blocks, volume headers) are written as zeros; the rest is whatever the

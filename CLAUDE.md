@@ -272,6 +272,12 @@ browser and uploads the result as an ordinary image.
   CD image (~400 KB/s) while the page stays responsive; insert by name
   through the API. Speedometer's `.sit` dropped on the board's page,
   inserted and run (Benchmark Mix: 1.3 x a Mac Classic, Plus at 4 MB).
+- **Free disk space** (web page): each drive's HFS/MFS/HFS+ volume
+  (`mac_disk_space()`, esp32emu's `diskspace`: Disk Copy 4.2, partition
+  maps), counted in `sony_frame()` at insert and a second after the last
+  write; Mac OS writes its counts back now and then, so it can lag. Host:
+  HFS from `macfiles.js` and HFS+ as macOS counts them; Tab5 (2026-10-21):
+  a 50 MB System 7.5.5 disk 32219136 of 52412416.
 
 ## Open items
 
