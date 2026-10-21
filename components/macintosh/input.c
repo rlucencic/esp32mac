@@ -4,9 +4,10 @@
  * Events go through a small queue; the emulation drains it once a frame.
  * Keys wait in a second queue for the keyboard (Plus) or ADB to ask for
  * them. The pointer moves through the Mac's low memory cursor globals,
- * like Mini vMac does: relative motion on a Plus, absolute positions
- * (touch) on all models. On the SE and Classic relative motion goes
- * through the ADB mouse instead, so the Mac's own acceleration applies.
+ * like Mini vMac does: relative motion on a Plus (the mouse, touch as a
+ * touchpad), absolute positions (the console, host scripts) on all
+ * models. On the SE and Classic relative motion goes through the ADB
+ * mouse instead, so the Mac's own acceleration applies.
  */
 #include <string.h>
 #include "mac_internal.h"

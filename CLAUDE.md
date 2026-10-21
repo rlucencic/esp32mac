@@ -4,7 +4,7 @@ A compact black-and-white Mac (68000, 512x342, up to 4 MB) on an ESP32-S3
 board with a 1024x600 touch LCD, or the M5Stack Tab5 (ESP32-P4, 1280x720,
 see "M5Stack Tab5" below). Its colour sibling, the Macintosh LC, is
 `../esp32mac2` (Tab5 only). Bluetooth keyboard and mouse, the touch
-screen as a mouse, disk images of any size in three drives, an LVGL setup
+screen as a touchpad, disk images of any size in three drives, an LVGL setup
 screen, and a web page for disk images and live status. ESP-IDF v5.5.4, C.
 
 The board side (tasks, LCD, touch, SD, WiFi, BLE, setup screen, web page,
@@ -80,7 +80,7 @@ bash -c '. $IDF_PATH/export.sh >/dev/null 2>&1; \
 
 | Path | What |
 |---|---|
-| `main/main.c` | The Mac as an `emu_machine_t`: memory, start, key map, touch, drives, status, console |
+| `main/main.c` | The Mac as an `emu_machine_t`: memory, start, key map, mouse and touchpad (a count a pixel), drives, status, console |
 | `main/rom_store.c` | ROM from its flash partition, else a matching file in the SD card's `roms/` |
 | `main/settings.c` | NVS `mac`: `model`, `ram_kb`, `pram` (256 bytes) |
 | `main/web/macfiles.js` | Web page script (`/machine.js`): Mac archives -> HFS disk images in the browser (LGPL, see below) |
@@ -114,7 +114,8 @@ bash -c '. $IDF_PATH/export.sh >/dev/null 2>&1; \
   sequence as in Mini vMac.
 - `input.c`: input queue from other tasks; the pointer through low memory
   (MTemp $828, RawMouse $82C, Mouse $830, CrsrNew $8CE): Plus relative motion
-  and touch positions; ADB relative motion goes through the ADB mouse
+  (the mouse, esp32emu's touchpad) and absolute positions (the console's
+  `P`, host scripts); ADB relative motion goes through the ADB mouse
   (acceleration applies). Button changes at most every 3 frames.
 - `chips.c`: SCC (registers, no data/interrupts), IWM (mode/status), SCSI
   5380 (empty bus: arbitration works, selection times out).
@@ -288,6 +289,12 @@ browser and uploads the result as an ordinary image.
   disk's own checks).
 - Disk reads run in the emulation task: big reads cost frames.
 - System 6 not tested.
+- **Clock** (the clock audit, 2026-10-21: `../esp32emu/CLAUDE.md`, To do):
+  the RTC is the board's time plus an offset the Mac sets (not saved): a
+  clock set before NTP (the MaTouch at 1970) is shifted by NTP's step. The
+  Mac reads the RTC at boot and then counts its one-second interrupt in
+  emulated time (`mac.c`): it misses a later NTP step and falls behind below
+  real time.
 
 ## README and GitHub
 

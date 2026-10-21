@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>A Macintosh Plus, SE or Classic on a 7-inch ESP32-S3 touch-screen board or an M5Stack Tab5.</b><br>
-  68000, up to 4 MB, classic Mac OS, disk images of any size, Bluetooth keyboard and mouse.
+  68000, up to 4 MB, classic Mac OS, disk images of any size, Bluetooth keyboard and mouse, the touch screen as a touchpad.
 </p>
 
 <p align="center">
@@ -31,8 +31,8 @@
 
 esp32mac turns the Makerfabs MaTouch ESP32-S3 Parallel TFT with Touch 7", or an
 M5Stack Tab5, into a compact black-and-white Macintosh. The 512×342 screen fills the
-panel's height, a Bluetooth keyboard and mouse (or your finger on the screen)
-work the Mac, and disk images on the microSD card go into three drives:
+panel's height, a Bluetooth keyboard and mouse (or your finger on the screen,
+as a touchpad) work the Mac, and disk images on the microSD card go into three drives:
 floppies and hard disks alike. A setup screen on the touch panel, and a web
 page on your network, handle everything else.
 
@@ -82,11 +82,15 @@ all are built on the shared runtime
   the Mac frees the drive
 
 **Around it**
-- **Touch screen as mouse**: tap to click, drag to drag
 - **Setup screen** before the Mac starts, and any time while it runs (hold the
   top-right corner for 2 seconds): WiFi, Bluetooth pairing, model, memory,
   disks, reset
 - **Bluetooth keyboard and mouse** (BLE HID), with battery levels
+- **The touch screen as a touchpad**, on both boards, for when there's no
+  mouse at hand (a Bluetooth mouse is the better way): drag a finger
+  anywhere to move the pointer, tap to click where it points, tap and
+  touch again to drag, hold still half a second to hold the button down
+  (the menus)
 - **Web page** at `http://macintosh.local`: drop disk images, Mac archives or
   `.ZIP` files onto it (with a progress bar), put them into drives, eject,
   make blank disks, and watch the Mac, drives, board and Bluetooth devices
@@ -105,7 +109,7 @@ all are built on the shared runtime
 | Chip | ESP32-S3-WROOM-1-N16R8: 16 MB flash, 8 MB octal PSRAM | ESP32-P4 (RISC-V, 360 MHz): 16 MB flash, 32 MB PSRAM; an ESP32-C6 for WiFi and Bluetooth |
 | Screen | 7" 1024×600 RGB, GT911 capacitive touch | 5" 1280×720 MIPI-DSI, capacitive touch, held landscape |
 | Storage | microSD card (FAT32 or exFAT) | microSD card (FAT32 or exFAT) |
-| Input | any BLE keyboard and mouse, or the touch screen | any BLE keyboard and mouse, or the touch screen, or the Tab5 Keyboard |
+| Input | any BLE keyboard and mouse; the touch screen as a touchpad | any BLE keyboard and mouse, or the Tab5 Keyboard; the touch screen as a touchpad |
 | Sound | a speaker on the MAX98357A output (optional, `menuconfig`) | the built-in speaker (ES8388) |
 
 <p align="center">
@@ -149,7 +153,7 @@ ROMs, you can also copy them into a `roms` folder on the SD card.
 2. Open `http://macintosh.local` and drop a system disk image onto the page,
    then choose **Insert into… → Drive 1**.
 3. Tap **Bluetooth** to pair a keyboard and mouse (optional: the touch
-   screen is a mouse too).
+   screen is a touchpad too).
 4. Choose the **model** and **memory**, then tap **Start**.
 
 <p align="center">
@@ -162,7 +166,7 @@ ROMs, you can also copy them into a `roms` folder on the SD card.
 |---|---|
 | Get back to the setup screen | Hold the top-right corner of the screen for 2 s |
 | Change the model or RAM | On the setup screen; **Restart** applies it |
-| Click | Tap the screen, or use the Bluetooth mouse |
+| Move the pointer, click | The Bluetooth mouse, or the touch screen as a touchpad: drag a finger anywhere to move the pointer, tap to click, tap and touch again to drag, hold still for half a second to hold the button down (the menus) |
 | Insert a disk | Web page: **Insert into…**, or setup screen → **Disks** → **Insert disk** |
 | Eject a disk | Drag it to the Trash on the Mac (frees the drive), or **Eject** on the web page |
 | Make a blank disk | Web page: **New blank disk** (choose the size), or setup screen → **New empty disk** (800 KB) |
@@ -204,7 +208,7 @@ flowchart LR
     PRES[Presenter<br>512×342 → 898×600]
     UI[Setup screen<br>LVGL]
     NET[WiFi · web page · mDNS]
-    BLE[Bluetooth HID · touch]
+    BLE[Bluetooth HID · touchpad]
   end
   PSRAM[(PSRAM<br>Mac RAM · ROM · framebuffer)]
   SD[(microSD<br>disks/)]
@@ -220,7 +224,7 @@ flowchart LR
   on a desktop (`components/macintosh/host`) for testing with scripted mouse
   and keyboard input, screenshots, sound recording and CPU traces.
 - **`main`**: the Mac on the board: memory, ROMs, settings, keyboard map,
-  touch, drives and status.
+  mouse and touchpad, drives and status.
 - **[esp32emu](https://github.com/rlucencic/esp32emu)**: the board runtime and the 68000 core.
 
 The ROM is patched in memory, with every patch checked against the expected
@@ -228,8 +232,8 @@ bytes: no ROM checksum test, a shorter memory test, and the `.Sony` floppy
 driver replaced by a small paravirtual one that reads and writes disk images
 block by block. That's why any image size works, without emulating the IWM
 floppy controller or SCSI. The mouse pointer moves through the Mac's own
-cursor variables, like Mini vMac does, so the touch screen can put it
-anywhere.
+cursor variables on a Plus, like Mini vMac does, and through the ADB mouse
+on the SE and Classic (with the Mac's own acceleration).
 
 ## Development
 
