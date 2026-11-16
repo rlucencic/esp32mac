@@ -122,7 +122,7 @@ all are built on the shared runtime
 
 ### 1. What you need
 
-- [ESP-IDF](https://github.com/espressif/esp-idf) v5.5 (developed with v5.5.4)
+- [ESP-IDF](https://github.com/espressif/esp-idf) v5.5 (developed with v5.5.6)
 - [esp32emu](https://github.com/rlucencic/esp32emu), checked out next to this project (`../esp32emu`)
 - Macintosh ROM images, which are copyrighted and **not included**: dumps of
   your own Mac Plus (128 KB), SE (256 KB) or Classic (512 KB) ROM. Put them in
