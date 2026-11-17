@@ -143,7 +143,7 @@ idf.py -B build-tab5 -DIDF_TARGET=esp32p4 -DSDKCONFIG=build-tab5/sdkconfig -p /d
 ```
 
 Later updates only need `idf.py -p … app-flash`. Instead of flashing the
-ROMs, you can also copy them into a `roms` folder on the SD card.
+ROMs, you can also copy them into the `mac/roms` folder on the SD card.
 
 ### 3. First start
 
@@ -174,9 +174,11 @@ ROMs, you can also copy them into a `roms` folder on the SD card.
 | Use a program downloaded as `.sit`, `.cpt` or `.hqx` | Drop the file onto the web page: it becomes a disk image named after it (e.g. `Speedometer_3.23.dsk`) |
 | …or from the command line | `curl -T System.dsk http://macintosh.local/disks/` |
 
-Disk images live in the `disks` folder on the SD card. The inserted disks
-are remembered across restarts, and so is the Mac's parameter RAM (control
-panel settings).
+Disk images live in the `mac` folder on the SD card, shared with esp32mac2
+and esp32mac3 (until 2026-11-17 `disks`, and the ROMs in the card's `roms`:
+esp32emu's `tools/sd_folders.ps1 E:\` moves an older card's files into
+each machine's folder). The inserted disks are remembered across restarts,
+and so is the Mac's parameter RAM (control panel settings).
 
 <p align="center">
   <img src="docs/images/disks.png" width="60%" alt="Disks page: drives 1 to 3 with Insert disk, New empty disk and Eject">
@@ -211,7 +213,7 @@ flowchart LR
     BLE[Bluetooth HID · touchpad]
   end
   PSRAM[(PSRAM<br>Mac RAM · ROM · framebuffer)]
-  SD[(microSD<br>disks/)]
+  SD[(microSD<br>mac/)]
   EMU <--> PSRAM
   PRES --> LCD[1024×600 or 1280×720 panel]
   PSRAM --> PRES

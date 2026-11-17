@@ -104,7 +104,7 @@ static bool start(void)
         static char message[160];
         snprintf(message, sizeof(message),
                  "No %s ROM: put it in roms/%s.rom and flash with idf.py flash, "
-                 "or copy it into the \"roms\" folder on the SD card.",
+                 "or copy it into the \"mac/roms\" folder on the SD card.",
                  model_full[settings.model], rom_files[settings.model]);
         emu_set_message(message);
         return false;
@@ -302,7 +302,7 @@ static const disks_size_t sizes[] = {
 };
 
 static const disks_config_t disks = {
-    .folder = "disks",
+    .folder = "mac",
     .extensions = extensions,
     .description = "Disk images (.DSK, .IMG, .IMAGE, .HFV, .ISO)",
     .title = "Disks",

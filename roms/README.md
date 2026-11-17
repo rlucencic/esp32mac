@@ -13,5 +13,5 @@ bytes), so only these files work:
 `idf.py flash` writes them to the `rom_plus`, `rom_se` and `rom_classic`
 flash partitions. Any one is enough; choose that model on the setup screen.
 
-Without flashing, the emulator also finds them in a `roms` folder on the SD
-card, under any file name.
+Without flashing, the emulator also finds them in the `mac/roms` folder on
+the SD card, under any file name.
