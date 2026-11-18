@@ -126,6 +126,7 @@ void via_vbl(void);
 void via_one_second(void);
 uint8_t via_port_a(void);           /* output levels as the Mac set them */
 uint8_t via_port_b(void);
+uint8_t via_enabled(void);          /* IER: the interrupts enabled (VIA_IF_* bits) */
 /* Shift register, as the external device (keyboard, ADB transceiver) */
 bool via_sr_shifting_in(void);      /* ACR: shift in under external clock */
 bool via_sr_shifting_out(void);     /* ACR: shift out under external clock */
@@ -167,6 +168,8 @@ void via_acr_changed(uint8_t old_acr, uint8_t acr);
 void rtc_reset(void);
 void rtc_lines(uint8_t port_b, uint8_t ddr_b);
 bool rtc_data_out(void);
+int64_t rtc_offset(void);           /* Mac time minus host time, seconds */
+uint32_t rtc_time(void);            /* the clock's time now, seconds since 1904 */
 
 /* keyboard.c: Plus keyboard; adb.c: ADB keyboard and mouse */
 void kbd_reset(void);
@@ -224,5 +227,8 @@ bool rom_prepare(const uint8_t *image, uint32_t size);
 
 /* video.c: screen and sound buffers */
 uint32_t video_base(void);
+uint32_t sound_base(void);
+/* The sound buffer's samples now: their range and a rough pitch (0 none) */
+void sound_survey(uint8_t *min, uint8_t *max, uint16_t *hz);
 void sound_frame_end(void);
 void sound_reset(void);

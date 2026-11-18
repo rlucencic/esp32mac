@@ -50,6 +50,44 @@ uint32_t mac_screen_signature(void)
 
 /* ---- Sound ---- */
 
+uint32_t sound_base(void)
+{
+    return mac.ram_size - ((via_port_a() & PA_SOUND_PAGE) ? SOUND_OFFSET : SOUND_OFFSET_ALT);
+}
+
+/* A frame's samples (the high bytes of FRAME_LINES words): their range, and
+ * a pitch from how often they cross the middle (a square wave's exactly)
+ */
+void sound_survey(uint8_t *min, uint8_t *max, uint16_t *hz)
+{
+    *min = *max = 0;
+    *hz = 0;
+    if (mac.ram == NULL) {
+        return;
+    }
+    const uint16_t *buf = (const uint16_t *)(mac.ram + sound_base());
+    uint8_t lo = 255, hi = 0;
+    for (int line = 0; line < FRAME_LINES; line++) {
+        uint8_t s = buf[line] >> 8;
+        lo = s < lo ? s : lo;
+        hi = s > hi ? s : hi;
+    }
+    *min = lo;
+    *max = hi;
+    if (hi - lo < 4) {
+        return;
+    }
+    unsigned middle = (lo + hi) / 2, crossings = 0;
+    bool above = (buf[0] >> 8) > middle;
+    for (int line = 1; line < FRAME_LINES; line++) {
+        bool now = (buf[line] >> 8) > middle;
+        crossings += now != above;
+        above = now;
+    }
+    /* Two crossings a cycle, FRAME_LINES samples a frame */
+    *hz = (uint16_t)((uint64_t)crossings * MAC_CPU_HZ / FRAME_CYCLES / 2);
+}
+
 #define RING        4096            /* stereo frames, power of two */
 
 static bool s_enabled;
@@ -85,7 +123,7 @@ void sound_frame_end(void)
     uint8_t pa = via_port_a();
     bool on = !(via_port_b() & PB_SOUND_OFF);
     int volume = pa & PA_SOUND_VOL;
-    uint32_t base = mac.ram_size - ((pa & PA_SOUND_PAGE) ? SOUND_OFFSET : SOUND_OFFSET_ALT);
+    uint32_t base = sound_base();
     const uint16_t *buf = (const uint16_t *)(mac.ram + base);
     for (int line = 0; line < FRAME_LINES; line++) {
         int16_t s = 0;

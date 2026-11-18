@@ -413,6 +413,24 @@ bool mac_init(const mac_config_t *config)
     return true;
 }
 
+void mac_get_chips(mac_chips_status_t *status)
+{
+    status->overlay = mac.overlay;
+    status->via_a = via_port_a();
+    status->via_b = via_port_b();
+    status->via_enabled = via_enabled();
+    status->scc_interrupts = scc_interrupts_enabled();
+    status->button = mouse_button();
+    /* Low memory Mouse: a Point, v then h */
+    status->pointer_y = mac.overlay ? 0 : (int16_t)mac_peek16(LM_MOUSE);
+    status->pointer_x = mac.overlay ? 0 : (int16_t)mac_peek16(LM_MOUSE + 2);
+    status->time = rtc_time();
+    status->clock_offset = rtc_offset();
+    status->screen = video_base();
+    status->sound = sound_base();
+    sound_survey(&status->sound_min, &status->sound_max, &status->sound_hz);
+}
+
 void mac_get_status(mac_status_t *status)
 {
     status->frames = mac.frames;

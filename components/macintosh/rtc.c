@@ -54,9 +54,19 @@ static uint32_t host_mac_time(void)
     return (uint32_t)(days * 86400 + tm.tm_hour * 3600 + tm.tm_min * 60 + tm.tm_sec);
 }
 
+int64_t rtc_offset(void)
+{
+    return rtc.offset;
+}
+
 static uint32_t mac_time(void)
 {
     return (uint32_t)(host_mac_time() + rtc.offset);
+}
+
+uint32_t rtc_time(void)
+{
+    return mac_time();
 }
 
 /* Parameter RAM as a freshly set up Mac has it (the values Mini vMac

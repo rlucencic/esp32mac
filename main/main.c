@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_heap_caps.h"
@@ -334,24 +335,123 @@ static void size_text(char *buf, size_t len, uint64_t bytes)
     }
 }
 
+/* The machine card on the web page: the chips' state now, from the core's
+ * mac_get_chips() (plain values, read on the web server's task). The whole
+ * /api/status reply has 4 KB (esp32emu's STATUS_SIZE): the rows are short.
+ */
+static void status_rows(emu_json_t *j)
+{
+    static char text[512];              /* (the web server's task: not on its stack) */
+    size_t n;
+    mac_status_t s;
+    mac_chips_status_t c;
+    mac_get_status(&s);
+    mac_get_chips(&c);
+    bool plus = mac_model() == MAC_MODEL_PLUS;
+    unsigned long ram_mb = s_cfg.ram_size >> 20;
+
+    snprintf(text, sizeof(text), "%s: a 68000 at 7.83 MHz, %lu MB RAM, %s", model_full[mac_model()], ram_mb,
+             plus ? "keyboard and mouse ports" : "ADB");
+    emu_json_row(j, "System", text);
+
+    /* The checksum in the ROM's first long word names it */
+    snprintf(text, sizeof(text), "%s, %lu KB at $400000, checksum $%04X%04X; the .Sony driver ours",
+             s_rom_name ? s_rom_name : "?", (unsigned long)(s_cfg.rom_size / 1024), mac_peek16(0x400000),
+             mac_peek16(0x400002));
+    emu_json_row(j, "ROM", text);
+
+    snprintf(text, sizeof(text), "RAM $000000-$%06lX, ROM $400000, SCSI $580000, SCC $9FFFF8/$BFFFF9, IWM $DFE1FF, "
+             "VIA $EFE1FE%s", (unsigned long)(s_cfg.ram_size - 1),
+             c.overlay ? "; the overlay on: ROM at 0, RAM at $600000" : "");
+    emu_json_row(j, "Memory", text);
+    uint32_t ram_free, system_free;
+    if (mac_ram_free(&ram_free, &system_free)) {
+        snprintf(text, sizeof(text), "%lu KB of %lu MB <span class=\"dim\">(system heap %lu KB free)</span>",
+                 (unsigned long)(ram_free / 1024), ram_mb, (unsigned long)(system_free / 1024));
+        emu_json_row_bar(j, "Free RAM", text, 100 - (int)((uint64_t)ram_free * 100 / s_cfg.ram_size));
+    }
+
+    /* VIA PA6 picks the screen buffer, PA3 the sound buffer, PA0-2 the
+     * volume; PB7 high turns the sound off
+     */
+    snprintf(text, sizeof(text), "%d × %d, black and white, 60.15 Hz; the %s screen buffer at $%06lX",
+             MAC_SCREEN_WIDTH, MAC_SCREEN_HEIGHT, (c.via_a & 0x40) ? "main" : "alternate", (unsigned long)c.screen);
+    emu_json_row(j, "Screen", text);
+
+    n = snprintf(text, sizeof(text), "%s, volume %u of 7", (c.via_b & 0x80) ? "Off (VIA PB7)" : "On", c.via_a & 7);
+    if (c.via_b & 0x80) {
+        /* (off: whatever the buffer holds isn't heard) */
+    } else if (c.sound_max == c.sound_min) {
+        n += snprintf(text + n, sizeof(text) - n, ", silent");
+    } else if (c.sound_hz) {
+        n += snprintf(text + n, sizeof(text) - n, ", a tone of about %u Hz", c.sound_hz);
+    } else {
+        n += snprintf(text + n, sizeof(text) - n, ", sounding");
+    }
+    snprintf(text + n, sizeof(text) - n, "; the %s sound buffer at $%06lX (one byte a line, 22.25 kHz)",
+             (c.via_a & 0x08) ? "main" : "alternate", (unsigned long)c.sound);
+    emu_json_row(j, "Sound", text);
+
+    if (c.overlay) {
+        n = snprintf(text, sizeof(text), "Button %s", c.button ? "down" : "up");
+    } else {
+        n = snprintf(text, sizeof(text), "Pointer at %d, %d, button %s", c.pointer_x, c.pointer_y,
+                     c.button ? "down" : "up");
+    }
+    snprintf(text + n, sizeof(text) - n, plus ? "; the mouse on the VIA and SCC" : "; ADB mouse at address 3");
+    emu_json_row(j, "Mouse", text);
+
+    emu_json_row(j, "Keyboard", plus ? "By position: Alt Option, Windows Command, Backspace Delete; the keypad and "
+                 "arrows (a Plus keyboard has no F-keys or Help)" :
+                 "By position (ADB): Ctrl Control, Alt Option, Windows Command, Backspace Delete, Delete forward "
+                 "delete, Insert Help, Num Lock Clear, Print Screen, Scroll Lock, Pause F13-F15");
+
+    /* Levels: the VIA 1, the SCC 2, the interrupt switch 4 */
+    static const char *const via_names[7] = {
+        "one-second", "VBL", NULL, "CB2", "CB1", "timer 2", "timer 1",
+    };
+    unsigned mask = (s.sr >> 8) & 7;
+    n = snprintf(text, sizeof(text), "Mask %u (%s); VIA:", mask,
+                 mask < 1 ? "VIA, SCC, switch on" : mask < 2 ? "SCC, switch on" : mask < 4 ? "switch on" : "all off");
+    int listed = 0;
+    for (int i = 0; i < 7 && n < sizeof(text); i++) {
+        if (c.via_enabled & (1 << i)) {
+            n += snprintf(text + n, sizeof(text) - n, "%s %s", listed++ ? "," : "",
+                          via_names[i] ? via_names[i] : plus ? "keyboard" : "ADB");
+        }
+    }
+    if (n < sizeof(text)) {
+        snprintf(text + n, sizeof(text) - n, "%s; SCC %s", listed ? "" : " none", c.scc_interrupts ? "on" : "off");
+    }
+    emu_json_row(j, "Interrupts", text);
+
+    /* The clock chip: seconds since 1904 in local time (2082844800 to 1970) */
+    time_t when = (time_t)c.time - 2082844800;
+    struct tm tm;
+    gmtime_r(&when, &tm);
+    n = snprintf(text, sizeof(text), "The clock chip: %04d-%02d-%02d %02d:%02d:%02d ", tm.tm_year + 1900,
+                 tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    if (c.clock_offset) {
+        /* What the Mac set it to, from the board's time */
+        long long o = c.clock_offset, a = o < 0 ? -o : o;
+        snprintf(text + n, sizeof(text) - n, "(set %+lld %s from the board's); 256 bytes of PRAM",
+                 a < 120 ? o : a < 7200 ? o / 60 : a < 172800 ? o / 3600 : o / 86400,
+                 a < 120 ? "s" : a < 7200 ? "min" : a < 172800 ? "h" : "days");
+    } else {
+        snprintf(text + n, sizeof(text) - n, "(the board's time); 256 bytes of PRAM");
+    }
+    emu_json_row(j, "Clock", text);
+
+    emu_json_row(j, "Disks", "Drives 1-3 through our .Sony driver (.Disk over 1.4 MB): raw, Disk Copy 4.2 and "
+                 "partitioned images; CDs read-only");
+    emu_json_row(j, "Ports", "SCSI: no devices; serial ports (SCC): no data; floppy drives (IWM): images instead");
+}
+
 static void status(emu_json_t *j, int section)
 {
     char text[160];
     if (section == EMU_STATUS_ROWS) {
-        snprintf(text, sizeof(text), "%s, %lu MB", model_full[mac_model()],
-                 (unsigned long)(s_cfg.ram_size >> 20));
-        emu_json_row(j, "System", text);
-        emu_json_row(j, "ROM", s_rom_name ? s_rom_name : "-");
-        snprintf(text, sizeof(text), "%d × %d, black and white, %d Hz", MAC_SCREEN_WIDTH,
-                 MAC_SCREEN_HEIGHT, MAC_SCREEN_HZ);
-        emu_json_row(j, "Screen", text);
-        uint32_t ram_free, system_free;
-        if (mac_ram_free(&ram_free, &system_free)) {
-            snprintf(text, sizeof(text), "%lu KB of %lu MB <span class=\"dim\">(system heap %lu KB free)</span>",
-                     (unsigned long)(ram_free / 1024), (unsigned long)(s_cfg.ram_size >> 20),
-                     (unsigned long)(system_free / 1024));
-            emu_json_row_bar(j, "Free RAM", text, 100 - (int)((uint64_t)ram_free * 100 / s_cfg.ram_size));
-        }
+        status_rows(j);
         return;
     }
     mac_disk_status_t ds;

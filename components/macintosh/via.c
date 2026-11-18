@@ -44,6 +44,11 @@ uint8_t via_port_b(void)
     return (via.orb & via.ddrb) | ~via.ddrb;
 }
 
+uint8_t via_enabled(void)
+{
+    return via.ier & 0x7F;
+}
+
 static void update_irq(void)
 {
     bool irq = (via.ifr & via.ier & 0x7F) != 0;

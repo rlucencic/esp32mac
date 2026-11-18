@@ -42,6 +42,16 @@ bash -c '. $IDF_PATH/export.sh >/dev/null 2>&1; \
   with the IDF venv's Python (`-I`). One touch per `send` call.
 - `curl http://macintosh.local/api/status`; disks: see `../esp32emu/README.md`
   (`PUT /disks/<name>` upload, `PUT /api/drive/<n>` insert by name).
+  The web page's machine card (`status_rows()` in `main/main.c`, from the
+  core's `mac_get_chips()`: plain copies, read on the web server's task):
+  System, ROM (name, checksum), Memory (the map, the overlay), Free RAM,
+  Screen (which buffer, where), Sound (on/off, volume, silent or a tone's
+  rough pitch from the buffer's samples, which buffer), Mouse (pointer,
+  button), Keyboard (where the Mac's keys are), Interrupts (the 68000's
+  mask, the VIA's enabled ones, the SCC), Clock (the clock chip's time and
+  the offset the Mac set; not the Time global, which holds garbage early in
+  the boot), Disks, Ports. The whole reply has 4 KB (esp32emu's
+  `STATUS_SIZE`): ~1 KB of rows, ~1.15 KB at most.
 - Flashing restarts the board and ends the user's Mac session: say so first.
 
 Console commands: the shared ones (`s` `L` `r` `F` `t` `i`, see

@@ -87,6 +87,27 @@ void mac_run_frame(void);
 void mac_get_status(mac_status_t *status);
 mac_model_t mac_model(void);
 
+/* The chips' state, for a status page: plain values copied from the
+ * emulation, safe to call from another task (no side effects)
+ */
+typedef struct {
+    bool overlay;           /* the ROM at 0 too (from power-on until the ROM's start) */
+    uint8_t via_a, via_b;   /* the VIA's ports as the Mac drives them */
+    uint8_t via_enabled;    /* its interrupts enabled: bit 0 one-second (CA2), 1 VBL (CA1),
+                             * 2 keyboard or ADB (SR), 3 CB2, 4 CB1, 5 timer 2, 6 timer 1 */
+    bool scc_interrupts;    /* the SCC's master interrupt enable */
+    bool button;            /* the mouse button as the Mac has it */
+    int16_t pointer_x, pointer_y;   /* the pointer (low memory Mouse), once the OS is up */
+    uint32_t time;          /* the clock chip's time now: seconds since 1904, local */
+    int64_t clock_offset;   /* seconds the Mac set its clock chip from the host's time */
+    uint32_t screen;        /* the screen buffer the video shows */
+    uint32_t sound;         /* the sound buffer it plays (one sample a line) */
+    uint8_t sound_min, sound_max;   /* its samples' range (the same: silent) */
+    uint16_t sound_hz;      /* about, from the samples crossing their middle; 0 none */
+} mac_chips_status_t;
+
+void mac_get_chips(mac_chips_status_t *status);
+
 /* Free RAM as the Mac OS sees it, in bytes: the Process Manager's heap
  * under System 7 ("Largest Unused Block" territory), else the application
  * heap and the room above it; and the system heap's free bytes. False
