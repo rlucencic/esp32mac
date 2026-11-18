@@ -103,8 +103,7 @@ static bool start(void)
         !rom_store_load(settings.model, s_cfg.rom_copy, &rom_size, &s_rom_name)) {
         static char message[160];
         snprintf(message, sizeof(message),
-                 "No %s ROM: put it in roms/%s.rom and flash with idf.py flash, "
-                 "or copy it into the \"mac/roms\" folder on the SD card.",
+                 "No %s ROM: put it in roms/%s.rom and flash with idf.py flash.",
                  model_full[settings.model], rom_files[settings.model]);
         emu_set_message(message);
         return false;

@@ -81,7 +81,7 @@ bash -c '. $IDF_PATH/export.sh >/dev/null 2>&1; \
 | Path | What |
 |---|---|
 | `main/main.c` | The Mac as an `emu_machine_t`: memory, start, key map, mouse and touchpad (a count a pixel), drives, status, console |
-| `main/rom_store.c` | ROM from its flash partition, else a matching file in the SD card's `mac/roms/` |
+| `main/rom_store.c` | ROM from its flash partition, overridden by a matching file in the SD card's `mac/roms/` |
 | `main/settings.c` | NVS `mac`: `model`, `ram_kb`, `pram` (256 bytes) |
 | `main/web/macfiles.js` | Web page script (`/machine.js`): Mac archives -> HFS disk images in the browser (LGPL, see below) |
 | `components/macintosh/` | The Mac, platform independent (`include/mac.h`) |
@@ -176,8 +176,9 @@ browser and uploads the result as an ordinary image.
 
 - NVS `mac`: `model` (0 Plus, 1 SE, 2 Classic), `ram_kb`, `pram`.
 - NVS `disks`: `disk_a`..`disk_c` (file names), `empty_n` (last BLANKnnnn).
-- SD card: `mac/` (images, made if missing), `mac/roms/` (optional ROMs);
-  the three Macs share it, every other machine has its own folder. Until
+- SD card: `mac/` (images, made if missing), `mac/roms/` (ROMs that
+  override the flashed ones, by checksum, since 2026-11-18); the three
+  Macs share it, every other machine has its own folder. Until
   2026-11-17 `disks/` and the card's `roms/`: esp32emu's
   `tools/sd_folders.ps1` moves an old card's files.
 

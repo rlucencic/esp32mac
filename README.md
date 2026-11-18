@@ -142,8 +142,9 @@ idf.py -B build-tab5 -DIDF_TARGET=esp32p4 -DSDKCONFIG=build-tab5/sdkconfig build
 idf.py -B build-tab5 -DIDF_TARGET=esp32p4 -DSDKCONFIG=build-tab5/sdkconfig -p /dev/cu.usbmodem… flash
 ```
 
-Later updates only need `idf.py -p … app-flash`. Instead of flashing the
-ROMs, you can also copy them into the `mac/roms` folder on the SD card.
+Later updates only need `idf.py -p … app-flash`. A ROM copied into the
+`mac/roms` folder on the SD card is used instead of the flashed one of its
+model.
 
 ### 3. First start
 
