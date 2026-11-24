@@ -267,8 +267,11 @@ debugging options and the lessons learned along the way.
   originals that talk to the floppy hardware directly don't work.
 - Black and white 512×342 only (no Mac II or colour).
 - System 7.5.3 refuses the Plus when started from its floppy set (Apple's
-  floppy install set doesn't support it); the System on the 7.5.3 CD image,
-  or System 6, works.
+  floppy install set doesn't support it). Use the System on the 7.5.3 CD image.
+
+## Roadmap
+
+See [TODO.md](TODO.md) for proposed work and how to verify it.
 
 ## Credits
 
